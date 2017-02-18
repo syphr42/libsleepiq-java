@@ -47,7 +47,6 @@ public class BedSideStatusTest extends AbstractTest
                                                          .withLastLink(LocalTime.of(0, 0, 1))
                                                          .withPressure(573)
                                                          .withSleepNumber(55);
-        System.out.println(gson.toJson(bedSideStatus));
         assertEquals(readJson("bed-side-status.json"), gson.toJson(bedSideStatus));
     }
 
