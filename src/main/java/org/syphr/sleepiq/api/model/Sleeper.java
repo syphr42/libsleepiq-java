@@ -88,9 +88,9 @@ public class Sleeper
         this.emailValidated = emailValidated;
     }
 
-    public Sleeper withEmailActivated(Boolean emailActivated)
+    public Sleeper withEmailValidated(Boolean emailValidated)
     {
-        setEmailValidated(emailActivated);
+        setEmailValidated(emailValidated);
         return this;
     }
 
