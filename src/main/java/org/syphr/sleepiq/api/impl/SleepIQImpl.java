@@ -37,6 +37,7 @@ import org.syphr.sleepiq.api.SleepIQ;
 import org.syphr.sleepiq.api.model.Bed;
 import org.syphr.sleepiq.api.model.BedsResponse;
 import org.syphr.sleepiq.api.model.Failure;
+import org.syphr.sleepiq.api.model.FamilyStatus;
 import org.syphr.sleepiq.api.model.LoginInfo;
 import org.syphr.sleepiq.api.model.LoginRequest;
 import org.syphr.sleepiq.api.model.PauseMode;
@@ -134,6 +135,26 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
                               .request(MediaType.APPLICATION_JSON_TYPE)
                               .get(SleepersResponse.class)
                               .getSleepers();
+        }
+        catch (LoginException e)
+        {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public FamilyStatus getFamilyStatus()
+    {
+        // TODO handle session timeout
+        try
+        {
+            LoginInfo login = login();
+            return getClient().target(config.getBaseUri())
+                              .path(Endpoints.bed())
+                              .path(Endpoints.familyStatus())
+                              .queryParam(PARAM_KEY, login.getKey())
+                              .request(MediaType.APPLICATION_JSON_TYPE)
+                              .get(FamilyStatus.class);
         }
         catch (LoginException e)
         {

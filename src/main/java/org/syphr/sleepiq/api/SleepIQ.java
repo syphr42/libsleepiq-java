@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.syphr.sleepiq.api.impl.SleepIQImpl;
 import org.syphr.sleepiq.api.model.Bed;
+import org.syphr.sleepiq.api.model.FamilyStatus;
 import org.syphr.sleepiq.api.model.LoginInfo;
 import org.syphr.sleepiq.api.model.PauseMode;
 import org.syphr.sleepiq.api.model.Sleeper;
@@ -31,7 +32,7 @@ public interface SleepIQ
 
     public List<Sleeper> getSleepers();
 
-    //    public void getFamilyStatus();
+    public FamilyStatus getFamilyStatus();
 
     public PauseMode getPauseMode(String bedId) throws BedNotFoundException;
 
