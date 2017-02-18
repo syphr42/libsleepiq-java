@@ -15,28 +15,22 @@
  */
 package org.syphr.sleepiq.api;
 
-import java.util.List;
+import org.syphr.sleepiq.api.model.Failure;
 
-import org.syphr.sleepiq.api.impl.SleepIQImpl;
-import org.syphr.sleepiq.api.model.Bed;
-import org.syphr.sleepiq.api.model.LoginInfo;
-import org.syphr.sleepiq.api.model.PauseMode;
-import org.syphr.sleepiq.api.model.Sleeper;
-
-public interface SleepIQ
+public class SleepIQException extends Exception
 {
-    public LoginInfo login() throws LoginException;
+    private static final long serialVersionUID = 1L;
 
-    public List<Bed> getBeds();
+    private final Failure failure;
 
-    public List<Sleeper> getSleepers();
-
-    //    public void getFamilyStatus();
-
-    public PauseMode getPauseMode(String bedId) throws BedNotFoundException;
-
-    public static SleepIQ create(Configuration config)
+    public SleepIQException(Failure failure)
     {
-        return new SleepIQImpl(config);
+        super(failure.getError().getMessage());
+        this.failure = failure;
+    }
+
+    public Failure getFailure()
+    {
+        return failure;
     }
 }

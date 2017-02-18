@@ -20,6 +20,7 @@ public class Endpoints
     private static final String LOGIN = "login";
     private static final String BED = "bed";
     private static final String SLEEPER = "sleeper";
+    private static final String PAUSE_MODE = "pauseMode";
 
     public static String login()
     {
@@ -34,6 +35,11 @@ public class Endpoints
     public static String sleeper()
     {
         return SLEEPER;
+    }
+
+    public static String pauseMode()
+    {
+        return PAUSE_MODE;
     }
 
     // @formatter:off

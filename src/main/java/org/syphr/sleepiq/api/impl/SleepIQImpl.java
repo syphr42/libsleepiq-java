@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.filter.LoggingFilter;
+import org.syphr.sleepiq.api.BedNotFoundException;
 import org.syphr.sleepiq.api.Configuration;
 import org.syphr.sleepiq.api.LoginException;
 import org.syphr.sleepiq.api.SleepIQ;
@@ -38,6 +39,7 @@ import org.syphr.sleepiq.api.model.BedsResponse;
 import org.syphr.sleepiq.api.model.Failure;
 import org.syphr.sleepiq.api.model.LoginInfo;
 import org.syphr.sleepiq.api.model.LoginRequest;
+import org.syphr.sleepiq.api.model.PauseMode;
 import org.syphr.sleepiq.api.model.Sleeper;
 import org.syphr.sleepiq.api.model.SleepersResponse;
 
@@ -57,7 +59,7 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
     }
 
     @Override
-    public void login() throws LoginException
+    public LoginInfo login() throws LoginException
     {
         if (loginInfo == null)
         {
@@ -95,30 +97,76 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
                 }
             }
         }
+
+        return loginInfo;
     }
 
     @Override
     public List<Bed> getBeds()
     {
         // TODO handle session timeout
-        return getClient().target(config.getBaseUri())
-                          .path(Endpoints.bed())
-                          .queryParam(PARAM_KEY, loginInfo.getKey())
-                          .request(MediaType.APPLICATION_JSON_TYPE)
-                          .get(BedsResponse.class)
-                          .getBeds();
+        try
+        {
+            LoginInfo login = login();
+            return getClient().target(config.getBaseUri())
+                              .path(Endpoints.bed())
+                              .queryParam(PARAM_KEY, login.getKey())
+                              .request(MediaType.APPLICATION_JSON_TYPE)
+                              .get(BedsResponse.class)
+                              .getBeds();
+        }
+        catch (LoginException e)
+        {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     @Override
     public List<Sleeper> getSleepers()
     {
         // TODO handle session timeout
-        return getClient().target(config.getBaseUri())
-                          .path(Endpoints.sleeper())
-                          .queryParam(PARAM_KEY, loginInfo.getKey())
-                          .request(MediaType.APPLICATION_JSON_TYPE)
-                          .get(SleepersResponse.class)
-                          .getSleepers();
+        try
+        {
+            LoginInfo login = login();
+            return getClient().target(config.getBaseUri())
+                              .path(Endpoints.sleeper())
+                              .queryParam(PARAM_KEY, login.getKey())
+                              .request(MediaType.APPLICATION_JSON_TYPE)
+                              .get(SleepersResponse.class)
+                              .getSleepers();
+        }
+        catch (LoginException e)
+        {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PauseMode getPauseMode(String bedId) throws BedNotFoundException
+    {
+        // TODO handle session timeout
+        try
+        {
+            LoginInfo login = login();
+            Response response = getClient().target(config.getBaseUri())
+                                           .path(Endpoints.bed())
+                                           .path(bedId)
+                                           .path(Endpoints.pauseMode())
+                                           .queryParam(PARAM_KEY, login.getKey())
+                                           .request(MediaType.APPLICATION_JSON_TYPE)
+                                           .get();
+
+            if (!Status.Family.SUCCESSFUL.equals(response.getStatusInfo().getFamily()))
+            {
+                throw new BedNotFoundException(response.readEntity(Failure.class));
+            }
+
+            return response.readEntity(PauseMode.class);
+        }
+        catch (LoginException e)
+        {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     @Override
