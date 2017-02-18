@@ -18,13 +18,14 @@ package org.syphr.sleepiq.api;
 import java.util.List;
 
 import org.syphr.sleepiq.api.impl.SleepIQImpl;
+import org.syphr.sleepiq.api.model.Bed;
 import org.syphr.sleepiq.api.model.Sleeper;
 
 public interface SleepIQ
 {
     public void login() throws LoginException;
 
-    //    public void getBeds();
+    public List<Bed> getBeds();
 
     public List<Sleeper> getSleepers();
 

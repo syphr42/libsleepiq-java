@@ -33,6 +33,8 @@ import org.glassfish.jersey.filter.LoggingFilter;
 import org.syphr.sleepiq.api.Configuration;
 import org.syphr.sleepiq.api.LoginException;
 import org.syphr.sleepiq.api.SleepIQ;
+import org.syphr.sleepiq.api.model.Bed;
+import org.syphr.sleepiq.api.model.BedsResponse;
 import org.syphr.sleepiq.api.model.Failure;
 import org.syphr.sleepiq.api.model.LoginInfo;
 import org.syphr.sleepiq.api.model.LoginRequest;
@@ -93,6 +95,18 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
                 }
             }
         }
+    }
+
+    @Override
+    public List<Bed> getBeds()
+    {
+        // TODO handle session timeout
+        return getClient().target(config.getBaseUri())
+                          .path(Endpoints.bed())
+                          .queryParam(PARAM_KEY, loginInfo.getKey())
+                          .request(MediaType.APPLICATION_JSON_TYPE)
+                          .get(BedsResponse.class)
+                          .getBeds();
     }
 
     @Override

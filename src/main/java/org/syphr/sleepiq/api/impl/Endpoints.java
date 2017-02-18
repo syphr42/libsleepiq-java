@@ -18,11 +18,17 @@ package org.syphr.sleepiq.api.impl;
 public class Endpoints
 {
     private static final String LOGIN = "login";
+    private static final String BED = "bed";
     private static final String SLEEPER = "sleeper";
 
     public static String login()
     {
         return LOGIN;
+    }
+
+    public static String bed()
+    {
+        return BED;
     }
 
     public static String sleeper()
