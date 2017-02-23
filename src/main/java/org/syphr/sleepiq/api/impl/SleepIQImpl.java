@@ -242,7 +242,7 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
         if (config.isLogging())
         {
             builder.register(new LoggingFilter(Logger.getLogger(SleepIQImpl.class.getName()),
-                                               config.getLogMax()));
+                                               true));
         }
 
         return builder.build();

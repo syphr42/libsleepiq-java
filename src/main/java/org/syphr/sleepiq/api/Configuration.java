@@ -16,7 +16,13 @@
 package org.syphr.sleepiq.api;
 
 import java.net.URI;
+import java.util.logging.Level;
 
+/**
+ * This class represents configuration parameters for using {@link SleepIQ}.
+ *
+ * @author Gregory Moyer
+ */
 public class Configuration
 {
     private String username;
@@ -25,102 +31,150 @@ public class Configuration
     private URI baseUri = URI.create("https://api.sleepiq.sleepnumber.com/rest");
 
     private boolean logging = false;
-    private String logLevel = "INFO";
-    private int logMax = 104857600; // 100kb
 
+    /**
+     * Get the username on the account.
+     *
+     * @return the username
+     */
     public String getUsername()
     {
         return username;
     }
 
+    /**
+     * Set the username on the account. This should be the username used to
+     * register with SleepIQ.
+     *
+     * @param username
+     *            the value to set
+     */
     public void setUsername(String username)
     {
         this.username = username;
     }
 
+    /**
+     * Set the username on the account. This should be the username used to
+     * register with SleepIQ.
+     *
+     * @param username
+     *            the value to set
+     * @return this configuration instance
+     */
     public Configuration withUsername(String username)
     {
         setUsername(username);
         return this;
     }
 
+    /**
+     * Get the password on the account.
+     *
+     * @return the password
+     */
     public String getPassword()
     {
         return password;
     }
 
+    /**
+     * Set the password on the account. This should be the password used to
+     * register with SleepIQ.
+     *
+     * @param password
+     *            the value to set
+     */
     public void setPassword(String password)
     {
         this.password = password;
     }
 
+    /**
+     * Set the password on the account. This should be the password used to
+     * register with SleepIQ.
+     *
+     * @param password
+     *            the value to set
+     * @return this configuration instance
+     */
     public Configuration withPassword(String password)
     {
         setPassword(password);
         return this;
     }
 
+    /**
+     * Get the base URI of the SleepIQ cloud service.
+     *
+     * @return the base URI
+     */
     public URI getBaseUri()
     {
         return baseUri;
     }
 
+    /**
+     * Set the base URI of the SleepIQ cloud service. It is unlikely that this
+     * will need to be changed from its default value.
+     *
+     * @param baseUri
+     *            the value to set
+     */
     public void setBaseUri(URI baseUri)
     {
         this.baseUri = baseUri;
     }
 
+    /**
+     * Set the base URI of the SleepIQ cloud service. It is unlikely that this
+     * will need to be changed from its default value.
+     *
+     * @param baseUri
+     *            the value to set
+     * @return this configuration instance
+     */
     public Configuration withBaseUri(URI baseUri)
     {
         setBaseUri(baseUri);
         return this;
     }
 
+    /**
+     * Get the logging flag.
+     *
+     * @return the logging flag
+     */
     public boolean isLogging()
     {
         return logging;
     }
 
+    /**
+     * Set the logging flag. When this is set to <code>true</code>, all requests
+     * and responses will be logged at the {@link Level#INFO} level. <b>This
+     * includes usernames and passwords!</b>
+     *
+     * @param logging
+     *            the value to set
+     */
     public void setLogging(boolean logging)
     {
         this.logging = logging;
     }
 
+    /**
+     * Set the logging flag. When this is set to <code>true</code>, all requests
+     * and responses will be logged at the {@link Level#INFO} level. <b>This
+     * includes usernames and passwords!</b>
+     *
+     * @param logging
+     *            the value to set
+     * @return this configuration instance
+     */
     public Configuration withLogging(boolean logging)
     {
         setLogging(logging);
-        return this;
-    }
-
-    public String getLogLevel()
-    {
-        return logLevel;
-    }
-
-    public void setLogLevel(String logLevel)
-    {
-        this.logLevel = logLevel;
-    }
-
-    public Configuration withLogLevel(String logLevel)
-    {
-        setLogLevel(logLevel);
-        return this;
-    }
-
-    public int getLogMax()
-    {
-        return logMax;
-    }
-
-    public void setLogMax(int logMax)
-    {
-        this.logMax = logMax;
-    }
-
-    public Configuration withLogMax(int logMax)
-    {
-        setLogMax(logMax);
         return this;
     }
 }
