@@ -16,7 +16,10 @@
 package org.syphr.sleepiq.api.impl;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -28,7 +31,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.StatusType;
 
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.syphr.sleepiq.api.BedNotFoundException;
@@ -50,9 +52,11 @@ import com.eclipsesource.jaxrs.provider.gson.GsonProvider;
 
 public class SleepIQImpl extends AbstractClient implements SleepIQ
 {
-    private static final String PARAM_KEY = "_k";
+    protected static final String PARAM_KEY = "_k";
 
-    private final Configuration config;
+    protected static final String DATA_BED_ID = "bedId";
+
+    protected final Configuration config;
 
     private volatile LoginInfo loginInfo;
 
@@ -76,12 +80,12 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
                                                    .put(Entity.json(new LoginRequest().withLogin(config.getUsername())
                                                                                       .withPassword(config.getPassword())));
 
-                    StatusType status = response.getStatusInfo();
-                    if (Status.UNAUTHORIZED.getStatusCode() == status.getStatusCode())
+                    if (isUnauthorized(response))
                     {
                         throw new UnauthorizedException(response.readEntity(Failure.class));
                     }
-                    if (!Status.Family.SUCCESSFUL.equals(status.getFamily()))
+
+                    if (!Status.Family.SUCCESSFUL.equals(response.getStatusInfo().getFamily()))
                     {
                         throw new LoginException(response.readEntity(Failure.class));
                     }
@@ -112,84 +116,111 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
     @Override
     public List<Bed> getBeds()
     {
-        // TODO handle session timeout
-        try
-        {
-            LoginInfo login = login();
-            return getClient().target(config.getBaseUri())
-                              .path(Endpoints.bed())
-                              .queryParam(PARAM_KEY, login.getKey())
-                              .request(MediaType.APPLICATION_JSON_TYPE)
-                              .get(BedsResponse.class)
-                              .getBeds();
-        }
-        catch (LoginException e)
-        {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return getSessionResponse(this::getBedsResponse).readEntity(BedsResponse.class).getBeds();
+    }
+
+    protected Response getBedsResponse(Map<String, Object> data) throws LoginException
+    {
+        LoginInfo login = login();
+        return getClient().target(config.getBaseUri())
+                          .path(Endpoints.bed())
+                          .queryParam(PARAM_KEY, login.getKey())
+                          .request(MediaType.APPLICATION_JSON_TYPE)
+                          .get();
     }
 
     @Override
     public List<Sleeper> getSleepers()
     {
-        // TODO handle session timeout
-        try
-        {
-            LoginInfo login = login();
-            return getClient().target(config.getBaseUri())
-                              .path(Endpoints.sleeper())
-                              .queryParam(PARAM_KEY, login.getKey())
-                              .request(MediaType.APPLICATION_JSON_TYPE)
-                              .get(SleepersResponse.class)
-                              .getSleepers();
-        }
-        catch (LoginException e)
-        {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return getSessionResponse(this::getSleepersResponse).readEntity(SleepersResponse.class)
+                                                            .getSleepers();
+    }
+
+    protected Response getSleepersResponse(Map<String, Object> data) throws LoginException
+    {
+        LoginInfo login = login();
+        return getClient().target(config.getBaseUri())
+                          .path(Endpoints.sleeper())
+                          .queryParam(PARAM_KEY, login.getKey())
+                          .request(MediaType.APPLICATION_JSON_TYPE)
+                          .get();
     }
 
     @Override
     public FamilyStatus getFamilyStatus()
     {
-        // TODO handle session timeout
-        try
-        {
-            LoginInfo login = login();
-            return getClient().target(config.getBaseUri())
-                              .path(Endpoints.bed())
-                              .path(Endpoints.familyStatus())
-                              .queryParam(PARAM_KEY, login.getKey())
-                              .request(MediaType.APPLICATION_JSON_TYPE)
-                              .get(FamilyStatus.class);
-        }
-        catch (LoginException e)
-        {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return getSessionResponse(this::getFamilyStatusResponse).readEntity(FamilyStatus.class);
+    }
+
+    protected Response getFamilyStatusResponse(Map<String, Object> data) throws LoginException
+    {
+        LoginInfo login = login();
+        return getClient().target(config.getBaseUri())
+                          .path(Endpoints.bed())
+                          .path(Endpoints.familyStatus())
+                          .queryParam(PARAM_KEY, login.getKey())
+                          .request(MediaType.APPLICATION_JSON_TYPE)
+                          .get();
     }
 
     @Override
     public PauseMode getPauseMode(String bedId) throws BedNotFoundException
     {
-        // TODO handle session timeout
+        Map<String, Object> data = new HashMap<>();
+        data.put(DATA_BED_ID, bedId);
+
+        Response response = getSessionResponse(this::getPauseModeResponse, data);
+
+        if (!Status.Family.SUCCESSFUL.equals(response.getStatusInfo().getFamily()))
+        {
+            throw new BedNotFoundException(response.readEntity(Failure.class));
+        }
+
+        return response.readEntity(PauseMode.class);
+    }
+
+    protected Response getPauseModeResponse(Map<String, Object> data) throws LoginException
+    {
+        LoginInfo login = login();
+        return getClient().target(config.getBaseUri())
+                          .path(Endpoints.bed())
+                          .path(data.get(DATA_BED_ID).toString())
+                          .path(Endpoints.pauseMode())
+                          .queryParam(PARAM_KEY, login.getKey())
+                          .request(MediaType.APPLICATION_JSON_TYPE)
+                          .get();
+    }
+
+    protected boolean isUnauthorized(Response response)
+    {
+        return Status.UNAUTHORIZED.getStatusCode() == response.getStatusInfo().getStatusCode();
+    }
+
+    protected synchronized void resetLogin()
+    {
+        loginInfo = null;
+    }
+
+    protected Response getSessionResponse(Request request)
+    {
+        return getSessionResponse(request, Collections.emptyMap());
+    }
+
+    protected Response getSessionResponse(Request request, Map<String, Object> data)
+    {
         try
         {
-            LoginInfo login = login();
-            Response response = getClient().target(config.getBaseUri())
-                                           .path(Endpoints.bed())
-                                           .path(bedId)
-                                           .path(Endpoints.pauseMode())
-                                           .queryParam(PARAM_KEY, login.getKey())
-                                           .request(MediaType.APPLICATION_JSON_TYPE)
-                                           .get();
+            Response response = request.execute(data);
 
-            if (!Status.Family.SUCCESSFUL.equals(response.getStatusInfo().getFamily()))
+            if (isUnauthorized(response))
             {
-                throw new BedNotFoundException(response.readEntity(Failure.class));
+                // session timed out
+                response.close();
+                resetLogin();
+                response = request.execute(data);
             }
 
-            return response.readEntity(PauseMode.class);
+            return response;
         }
         catch (LoginException e)
         {
@@ -215,5 +246,11 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
         }
 
         return builder.build();
+    }
+
+    @FunctionalInterface
+    public static interface Request
+    {
+        public Response execute(Map<String, Object> data) throws LoginException;
     }
 }
