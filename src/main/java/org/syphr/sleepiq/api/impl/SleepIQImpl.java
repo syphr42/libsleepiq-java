@@ -28,12 +28,14 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.StatusType;
 
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.syphr.sleepiq.api.BedNotFoundException;
 import org.syphr.sleepiq.api.Configuration;
 import org.syphr.sleepiq.api.LoginException;
 import org.syphr.sleepiq.api.SleepIQ;
+import org.syphr.sleepiq.api.UnauthorizedException;
 import org.syphr.sleepiq.api.model.Bed;
 import org.syphr.sleepiq.api.model.BedsResponse;
 import org.syphr.sleepiq.api.model.Failure;
@@ -74,7 +76,12 @@ public class SleepIQImpl extends AbstractClient implements SleepIQ
                                                    .put(Entity.json(new LoginRequest().withLogin(config.getUsername())
                                                                                       .withPassword(config.getPassword())));
 
-                    if (!Status.Family.SUCCESSFUL.equals(response.getStatusInfo().getFamily()))
+                    StatusType status = response.getStatusInfo();
+                    if (Status.UNAUTHORIZED.getStatusCode() == status.getStatusCode())
+                    {
+                        throw new UnauthorizedException(response.readEntity(Failure.class));
+                    }
+                    if (!Status.Family.SUCCESSFUL.equals(status.getFamily()))
                     {
                         throw new LoginException(response.readEntity(Failure.class));
                     }
