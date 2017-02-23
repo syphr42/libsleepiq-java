@@ -27,7 +27,7 @@ public class BedSideStatus
     private Integer sleepNumber;
     private Long alertId;
     private LocalTime lastLink;
-    private Integer pressure;
+    private Integer pressure; // appears to be in kPa
 
     public Boolean isInBed()
     {
