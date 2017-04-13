@@ -15,7 +15,8 @@
  */
 package org.syphr.sleepiq.api.model;
 
-import java.time.LocalTime;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -26,7 +27,7 @@ public class BedSideStatus
     private String alertDetailedMessage;
     private Integer sleepNumber;
     private Long alertId;
-    private LocalTime lastLink;
+    private TimeSince lastLink;
     private Integer pressure; // appears to be in kPa
 
     public Boolean isInBed()
@@ -93,17 +94,25 @@ public class BedSideStatus
         return this;
     }
 
-    public LocalTime getLastLink()
+    public Duration getLastLink()
     {
-        return lastLink;
+        return lastLink == null ? null : lastLink.getDuration();
     }
 
-    public void setLastLink(LocalTime lastLink)
+    public void setLastLink(Duration lastLink)
     {
-        this.lastLink = lastLink;
+        this.lastLink = new TimeSince(lastLink);
     }
 
-    public BedSideStatus withLastLink(LocalTime lastLink)
+    public BedSideStatus withLastLink(long days, long hours, long minutes, long seconds)
+    {
+        return withLastLink(Duration.ofSeconds(TimeUnit.DAYS.toSeconds(days)
+                                               + TimeUnit.HOURS.toSeconds(hours)
+                                               + TimeUnit.MINUTES.toSeconds(minutes)
+                                               + seconds));
+    }
+
+    public BedSideStatus withLastLink(Duration lastLink)
     {
         setLastLink(lastLink);
         return this;

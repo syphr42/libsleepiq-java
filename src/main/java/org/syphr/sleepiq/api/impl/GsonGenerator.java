@@ -16,6 +16,8 @@
 package org.syphr.sleepiq.api.impl;
 
 import org.syphr.sleepiq.api.impl.typeadapters.JSR310TypeAdapters;
+import org.syphr.sleepiq.api.impl.typeadapters.TimeSinceTypeAdapter;
+import org.syphr.sleepiq.api.model.TimeSince;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,6 +35,8 @@ public class GsonGenerator
 
         // add Java 8 Time API support
         JSR310TypeAdapters.registerJSR310TypeAdapters(builder);
+
+        builder.registerTypeAdapter(TimeSince.class, new TimeSinceTypeAdapter());
 
         if (prettyPrint)
         {
