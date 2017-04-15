@@ -24,20 +24,33 @@ import java.util.regex.Pattern;
 
 public class TimeSince
 {
-    private static final Pattern PATTERN = Pattern.compile("(([0-9])+ d )?([0-9]{2}):([0-9]{2}):([0-9]{2})",
+    private static final Pattern PATTERN = Pattern.compile("(([0-9]+) d )?([0-9]{2}):([0-9]{2}):([0-9]{2})",
                                                            Pattern.CASE_INSENSITIVE);
 
-    private final Duration duration;
-
-    public TimeSince(Duration duration)
-    {
-        Objects.requireNonNull(duration, "duration");
-        this.duration = duration.abs();
-    }
+    private Duration duration;
 
     public Duration getDuration()
     {
         return duration;
+    }
+
+    public void setDuration(Duration duration)
+    {
+        this.duration = duration == null ? null : duration.abs();
+    }
+
+    public TimeSince withDuration(long days, long hours, long minutes, long seconds)
+    {
+        return withDuration(Duration.ofSeconds(TimeUnit.DAYS.toSeconds(days)
+                                               + TimeUnit.HOURS.toSeconds(hours)
+                                               + TimeUnit.MINUTES.toSeconds(minutes)
+                                               + seconds));
+    }
+
+    public TimeSince withDuration(Duration duration)
+    {
+        setDuration(duration);
+        return this;
     }
 
     @Override
@@ -127,6 +140,6 @@ public class TimeSince
           .append(secondMatch)
           .append('S');
 
-        return new TimeSince(Duration.parse(sb.toString()));
+        return new TimeSince().withDuration(Duration.parse(sb.toString()));
     }
 }

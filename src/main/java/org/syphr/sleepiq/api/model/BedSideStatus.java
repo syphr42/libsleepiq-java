@@ -15,9 +15,6 @@
  */
 package org.syphr.sleepiq.api.model;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-
 import com.google.gson.annotations.SerializedName;
 
 public class BedSideStatus
@@ -94,25 +91,17 @@ public class BedSideStatus
         return this;
     }
 
-    public Duration getLastLink()
+    public TimeSince getLastLink()
     {
-        return lastLink == null ? null : lastLink.getDuration();
+        return lastLink;
     }
 
-    public void setLastLink(Duration lastLink)
+    public void setLastLink(TimeSince lastLink)
     {
-        this.lastLink = new TimeSince(lastLink);
+        this.lastLink = lastLink;
     }
 
-    public BedSideStatus withLastLink(long days, long hours, long minutes, long seconds)
-    {
-        return withLastLink(Duration.ofSeconds(TimeUnit.DAYS.toSeconds(days)
-                                               + TimeUnit.HOURS.toSeconds(hours)
-                                               + TimeUnit.MINUTES.toSeconds(minutes)
-                                               + seconds));
-    }
-
-    public BedSideStatus withLastLink(Duration lastLink)
+    public BedSideStatus withLastLink(TimeSince lastLink)
     {
         setLastLink(lastLink);
         return this;

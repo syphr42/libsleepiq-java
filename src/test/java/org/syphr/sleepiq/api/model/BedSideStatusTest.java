@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.io.FileReader;
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,7 +43,10 @@ public class BedSideStatusTest extends AbstractTest
         BedSideStatus bedSideStatus = new BedSideStatus().withAlertDetailedMessage("No Alert")
                                                          .withAlertId(0L)
                                                          .withInBed(false)
-                                                         .withLastLink(3, 5, 4, 38)
+                                                         .withLastLink(new TimeSince().withDuration(3,
+                                                                                                    5,
+                                                                                                    4,
+                                                                                                    38))
                                                          .withPressure(573)
                                                          .withSleepNumber(55);
         assertEquals(readJson("bed-side-status.json"), gson.toJson(bedSideStatus));
@@ -60,11 +61,7 @@ public class BedSideStatusTest extends AbstractTest
             assertEquals("No Alert", bedSideStatus.getAlertDetailedMessage());
             assertEquals(Long.valueOf(0L), bedSideStatus.getAlertId());
             assertFalse(bedSideStatus.isInBed());
-            assertEquals(Duration.ofSeconds(TimeUnit.DAYS.toSeconds(3)
-                                            + TimeUnit.HOURS.toSeconds(5)
-                                            + TimeUnit.MINUTES.toSeconds(4)
-                                            + 38),
-                         bedSideStatus.getLastLink());
+            assertEquals(new TimeSince().withDuration(3, 5, 4, 38), bedSideStatus.getLastLink());
             assertEquals(Integer.valueOf(573), bedSideStatus.getPressure());
             assertEquals(Integer.valueOf(55), bedSideStatus.getSleepNumber());
         }

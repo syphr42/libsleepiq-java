@@ -24,13 +24,33 @@ import org.junit.Test;
 public class TimeSinceTest
 {
     @Test
+    public void testWithDuration()
+    {
+        assertEquals(new TimeSince().withDuration(0, 0, 0, 0).getDuration(),
+                     new TimeSince().withDuration(Duration.parse("PT00H00M00S")).getDuration());
+        assertEquals(new TimeSince().withDuration(0, 2, 3, 4).getDuration(),
+                     new TimeSince().withDuration(Duration.parse("PT02H03M04S")).getDuration());
+        assertEquals(new TimeSince().withDuration(0, 12, 34, 56).getDuration(),
+                     new TimeSince().withDuration(Duration.parse("PT12H34M56S")).getDuration());
+        assertEquals(new TimeSince().withDuration(1, 2, 3, 4).getDuration(),
+                     new TimeSince().withDuration(Duration.parse("P1DT02H03M04S")).getDuration());
+        assertEquals(new TimeSince().withDuration(12, 23, 34, 45).getDuration(),
+                     new TimeSince().withDuration(Duration.parse("P12DT23H34M45S")).getDuration());
+    }
+
+    @Test
     public void testToString()
     {
-        assertEquals("00:00:00", new TimeSince(Duration.parse("PT00H00M00S")).toString());
-        assertEquals("02:03:04", new TimeSince(Duration.parse("PT02H03M04S")).toString());
-        assertEquals("12:34:56", new TimeSince(Duration.parse("PT12H34M56S")).toString());
-        assertEquals("1 d 02:03:04", new TimeSince(Duration.parse("P1DT02H03M04S")).toString());
-        assertEquals("1 d 23:45:59", new TimeSince(Duration.parse("P1DT23H45M59S")).toString());
+        assertEquals("00:00:00",
+                     new TimeSince().withDuration(Duration.parse("PT00H00M00S")).toString());
+        assertEquals("02:03:04",
+                     new TimeSince().withDuration(Duration.parse("PT02H03M04S")).toString());
+        assertEquals("12:34:56",
+                     new TimeSince().withDuration(Duration.parse("PT12H34M56S")).toString());
+        assertEquals("1 d 02:03:04",
+                     new TimeSince().withDuration(Duration.parse("P1DT02H03M04S")).toString());
+        assertEquals("12 d 23:34:45",
+                     new TimeSince().withDuration(Duration.parse("P12DT23H34M45S")).toString());
     }
 
     @Test
@@ -40,7 +60,7 @@ public class TimeSinceTest
         assertEquals(Duration.parse("PT2H3M4S"), TimeSince.parse("02:03:04").getDuration());
         assertEquals(Duration.parse("PT12H34M56S"), TimeSince.parse("12:34:56").getDuration());
         assertEquals(Duration.parse("P1DT2H3M4S"), TimeSince.parse("1 d 02:03:04").getDuration());
-        assertEquals(Duration.parse("P1DT23H45M59S"),
-                     TimeSince.parse("1 d 23:45:59").getDuration());
+        assertEquals(Duration.parse("P12DT23H34M45S"),
+                     TimeSince.parse("12 d 23:34:45").getDuration());
     }
 }
